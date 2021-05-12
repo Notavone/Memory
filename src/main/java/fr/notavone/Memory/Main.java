@@ -1,18 +1,13 @@
 package fr.notavone.Memory;
 
 import javax.swing.*;
-import java.io.IOException;
 import java.util.Locale;
 
 public class Main {
+    private static final int DEFAULT_SIZE = 4;
+
     public static void main(String[] args) {
         Locale.setDefault(Locale.ENGLISH);
-        SwingUtilities.invokeLater(() -> {
-            try {
-                new Game.Controller(new Game.Model(16));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
+        SwingUtilities.invokeLater(() -> new Game.Controller(new Game.Model(DEFAULT_SIZE)));
     }
 }
