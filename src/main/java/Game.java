@@ -72,7 +72,7 @@ public class Game {
             this.buttons = new ArrayList<>();
             this.chrono = new Chrono();
             this.scores = new ArrayList<>();
-            this.tries = 1000;
+            this.tries = columns - 1;
             this.gameStarted = false;
             this.fetchScores();
 
