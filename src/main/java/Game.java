@@ -1,5 +1,3 @@
-package fr.notavone.Memory;
-
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
 import javax.swing.*;
@@ -64,7 +62,6 @@ public class Game {
         private final ArrayList<Float> scores;
         private final ArrayList<JButton> buttons;
         private final Chrono chrono;
-        private final int gridSize;
         private final int columns;
 
         private int tries;
@@ -72,21 +69,22 @@ public class Game {
 
         public Model(int columns) {
             this.columns = columns;
-            this.gridSize = columns * columns;
             this.buttons = new ArrayList<>();
             this.chrono = new Chrono();
             this.scores = new ArrayList<>();
-            this.tries = columns - 1;
+            this.tries = 1000;
             this.gameStarted = false;
             this.fetchScores();
+
+            int numberOfImage = columns * columns;
             Vector<Integer> v = new Vector<>();
-            for (int i = 0; i < this.gridSize - this.gridSize % 2; i++) {
-                v.add(i % (this.gridSize / 2));
+            for (int i = 0; i < numberOfImage - numberOfImage % 2; i++) {
+                v.add(i % (numberOfImage / 2));
             }
 
-            if (this.gridSize % 2 != 0) v.add(AVAILABLE_IMAGES.length - 1);
+            if (numberOfImage % 2 != 0) v.add(AVAILABLE_IMAGES.length - 1);
 
-            for (int i = 0; i < this.gridSize; i++) {
+            for (int i = 0; i < numberOfImage; i++) {
                 int rand = (int) (Math.random() * v.size());
                 String reference = AVAILABLE_IMAGES[v.elementAt(rand)];
                 this.buttons.add(new MemoryButton(reference));
@@ -167,10 +165,6 @@ public class Game {
             this.tries--;
         }
 
-        public int getGridSize() {
-            return gridSize;
-        }
-
         public boolean isGameStarted() {
             return this.gameStarted;
         }
@@ -200,8 +194,8 @@ public class Game {
             model.getChrono().setLabel(time);
 
             JPanel imagePanel = new JPanel();
-            int s = (int) Math.sqrt(model.getGridSize());
-            imagePanel.setLayout(new GridLayout(s, s));
+            int columns = model.getColumns();
+            imagePanel.setLayout(new GridLayout(columns, columns));
             for (JButton button : model.getButtons()) {
                 imagePanel.add(button);
             }
@@ -296,24 +290,21 @@ public class Game {
         @Override
         public void actionPerformed(ActionEvent e) {
             JButton button = (JButton) e.getSource();
+            button.setEnabled(false);
+            ReferencedIcon thisIcon = (ReferencedIcon) button.getDisabledIcon();
+            disabledButtonCount++;
+
             if (!model.isGameStarted()) {
                 model.startGame();
             }
 
-            button.setEnabled(false);
-            disabledButtonCount++;
-
-            ReferencedIcon thisIcon = (ReferencedIcon) button.getDisabledIcon();
-            boolean isTrap = thisIcon.getReference().equals(this.trap.getReference());
-            if (isTrap) {
+            if (thisIcon.getReference().equals(this.trap.getReference())) {
                 model.decrementTries();
                 view.setTries(model.getTries());
                 if (lastDisabledButton != null) {
                     JButton lastButton = lastDisabledButton;
-                    lastDisabledButton = null;
                     Utilities.timer(1000, (ignored) -> lastButton.setEnabled(true));
                 }
-
                 disabledButtonCount = 0;
             }
 
@@ -325,7 +316,7 @@ public class Game {
                     model.decrementTries();
                     view.setTries(model.getTries());
                     JButton lastButton = lastDisabledButton;
-                    Utilities.timer(1000, ((ignored) -> {
+                    Utilities.timer(500, ((ignored) -> {
                         button.setEnabled(true);
                         lastButton.setEnabled(true);
                     }));
@@ -346,11 +337,7 @@ public class Game {
                 model.getChrono().interrupt();
                 controller.reset(new Model(controller.getModel().getColumns()));
                 Dialogs.showLoseDialog(window);
-                Utilities.timer(1000, (ignored) -> {
-                    for (JButton btn : model.getButtons()) {
-                        btn.setEnabled(false);
-                    }
-                });
+                Utilities.timer(1000, (ignored) -> model.getButtons().forEach(btn -> btn.setEnabled(false)));
             }
 
         }

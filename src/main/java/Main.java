@@ -1,5 +1,3 @@
-package fr.notavone.Memory;
-
 import javax.swing.*;
 import java.util.Locale;
 
